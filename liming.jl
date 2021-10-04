@@ -18,12 +18,14 @@ lambda = 8
 line(a, b) = p -> (a[2] - b[2]) * p[1] + (b[1] - a[1]) * p[2] - a[2] * b[1] + a[1] * b[2]
 
 function liming(p)
+    d = norm(points[end] - points[1])
     n = length(points) - 1
     v = 1
     for i in 1:n
-        v *= line(points[i], points[i+1])(p)
+        v *= line(points[i], points[i+1])(p) / d
     end
-    v -= (lambda / 100 * line(points[end], points[1])(p)) ^ n
+#    v = sign(v) * abs(v) ^ (2/n)
+    v -= (lambda / 100 * line(points[end], points[1])(p) / d) ^ 2
 end
 
 
@@ -167,7 +169,8 @@ function setup_gui()
     push!(hbox, reset)
 
     # Lambda spinbutton
-    lb = GtkSpinButton(0:1:100)
+    push!(hbox, GtkLabel("Lambda: "))
+    lb = GtkSpinButton(0:1:999)
     set_gtk_property!(lb, :value, lambda)
     signal_connect(lb, "value-changed") do sb
         global lambda = get_gtk_property(sb, :value, Int)
